@@ -33,6 +33,11 @@ setInterval(function () {
   restoreHealthOrMana();
   loot();
 
+
+  //hostileMonster = get_nearest_monster({ target: 'codedev' });
+  //if (hostileMonster) attack(hostileMonster);
+
+
   let monster = {
     // max_att: max attack
     // min_xp: min XP
