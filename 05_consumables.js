@@ -7,6 +7,7 @@ let manaThreshold = 0.2;
 
 function restoreHealthOrMana() {
   if (safeties && mssince(lastPotion) < 600) return;
+  console.log(safeties);
   var used = false;
   if (new Date() < parent.next_potion) return;
   used = useHealthPotion(character);

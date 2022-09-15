@@ -43,8 +43,10 @@ setInterval(function doMerchantStuff() {
   checkHealthAndManaPotionsInInventory();
   restoreHealthOrMana();
 
+  log("go to town");
   if (!is_moving(character)) fastTravelTown();
 
+  log("go to potions");
   if (!is_moving(character)) {
     smart_move({ to: "potions", return: true }, function () { sellGarbage(); });
     return;
