@@ -34,9 +34,7 @@ setInterval(function () {
   loot();
 
 
-  //hostileMonster = get_nearest_monster({ target: 'codedev' });
-  //if (hostileMonster) attack(hostileMonster);
-
+  
 
   let monster = {
     // max_att: max attack
