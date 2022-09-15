@@ -2,8 +2,8 @@ let healthPotion = 50;
 let manaPoition = 100;
 let lastPotion = new Date(0);
 
-let healthThreshold = 0.4;
-let manaThreshold = 0.2;
+let healthThreshold = 0.5;
+let manaThreshold = 0.3;
 
 function restoreHealthOrMana() {
   if (safeties && mssince(lastPotion) < 600) return;
