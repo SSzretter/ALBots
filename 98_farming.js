@@ -1,7 +1,7 @@
 let attackActive = false;
 let walkingActive = false;
 
-let isPartyLeader = false;
+let isPartyLeader = true;  // TEMPORARILY TRUE NORMALLY WARRIOR IS PARTY LEADER
 
 let monsterType = ""; //should be set ingame
 

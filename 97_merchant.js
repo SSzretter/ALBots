@@ -8,12 +8,15 @@ let movingToBank = false;
 let justRespawned = false;
 let oldLocation = {};
 
+let routePlan = ['town','garbage'];
+let currentRoute = routePlan;
+
 let isPartyLeader = false;
 
 let potions = {
-  D4ddy001: { name: "D4ddy001", inventory: { hpot0: { q: -1 }, hpot1: { q: -1 }, mpot0: { q: -1 }, mpot1: { q: -1 } } },
-  D4ddy002: { name: "D4ddy002", inventory: { hpot0: { q: -1 }, hpot1: { q: -1 }, mpot0: { q: -1 }, mpot1: { q: -1 } } },
-  D4ddy003: { name: "D4ddy003", inventory: { hpot0: { q: -1 }, hpot1: { q: -1 }, mpot0: { q: -1 }, mpot1: { q: -1 } } }
+  coodev: { name: "codedev", inventory: { hpot0: { q: -1 }, hpot1: { q: -1 }, mpot0: { q: -1 }, mpot1: { q: -1 } } }
+//  D4ddy002: { name: "D4ddy002", inventory: { hpot0: { q: -1 }, hpot1: { q: -1 }, mpot0: { q: -1 }, mpot1: { q: -1 } } },
+//  D4ddy003: { name: "D4ddy003", inventory: { hpot0: { q: -1 }, hpot1: { q: -1 }, mpot0: { q: -1 }, mpot1: { q: -1 } } }
 };
 
 function init() {
@@ -22,6 +25,8 @@ function init() {
 
 setInterval(function doMerchantStuff() {
 
+
+  
   if (character.rip) {
     oldLocation = { x: character.real_x, y: character.real_y, map: character.map };
     setTimeout(respawn,15000);
@@ -43,26 +48,42 @@ setInterval(function doMerchantStuff() {
   checkHealthAndManaPotionsInInventory();
   restoreHealthOrMana();
 
-  log("go to town");
-  if (!is_moving(character)) fastTravelTown();
-
-  log("go to potions");
-  if (!is_moving(character)) {
-    smart_move({ to: "potions", return: true }, function () { sellGarbage(); });
-    return;
+    console.log(currentRoute);
+    
+    if (currentRoute[0] == 'town') {
+      if (simple_distance({ x: 56, y: -122 }, { x: character.real_x, y: character.real_y }) > 500 && !is_moving(character)) {
+        game_log("too far away - go to town");
+        fastTravelTown();
+      }
+      currentRoute.shift();
+    }
+  
+  
+    // TODO:   CHECK IF GARBAGE TO SELL!
+  if (currentRoute[0] == 'garbage') {
+    if (character.real_x !== 56 || character.real_y !== -122 && !is_moving(character))
+    {
+      game_log("go to potions");
+      smart_move({ to: "potions", return: true }, function () { sellGarbage(); currentRoute.shift(); });
+    }
   }
+  
+  return;
 
   if (needMoney() && !is_moving(character)) {
+    game_log("go to bank");
     smart_move({ to: "bank", return: true }, function () { withdrawMoney(); });
     return;
   }
 
   if (needPotions() && !is_moving(character)) {
+    game_log("go to potions 2");
     smart_move({ to: "potions", return: true }, function () { buyPotions(); });
     return;
   }
 
   if (!is_moving(character)) {
+    game_log("go to bank 2");
     smart_move({ to: "bank", return: true }, function () { depositGold(); depositItems(); });
   }
 }, 1000 / 4); //loop every 5 seconds

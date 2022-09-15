@@ -6,10 +6,10 @@ const colorNavy = "#1C222B";
 
 var Characters;
 (function (Characters) {
-  Characters["Warrior"] = "D4ddy001";
-  Characters["Mage"] = "D4ddy002";
-  Characters["Ranger"] = "D4ddy003";
-  Characters["Merchant"] = "D4ddy004";
+  Characters["Warrior"] = "codedevW";
+  Characters["Mage"] = "codedev";
+  Characters["Ranger"] = "codedevR";
+  Characters["Merchant"] = "codedevB";
 })(Characters || (Characters = {}));
 
 var CharacterTypes;
