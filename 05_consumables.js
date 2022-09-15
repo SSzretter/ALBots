@@ -7,7 +7,6 @@ let manaThreshold = 0.2;
 
 function restoreHealthOrMana() {
   if (safeties && mssince(lastPotion) < 600) return;
-  console.log(safeties);
   var used = false;
   if (new Date() < parent.next_potion) return;
   used = useHealthPotion(character);
@@ -16,8 +15,10 @@ function restoreHealthOrMana() {
 }
 
 function useHealthPotion() {
-  if (((getDifference(character.max_hp, character.hp) >= healthPotion) || isBelowPercent(character.hp, character.max_hp, healthThreshold))
-    && isAbovePercent(character.mp, character.max_mp, manaThreshold)) {
+  if (
+    ( getDifference(character.max_hp, character.hp) >= healthPotion && isAbovePercent(character.mp, character.max_mp, manaThreshold) ) // we have enough mana and could heal so go ahead and heal
+    || isBelowPercent(character.hp, character.max_hp, healthThreshold)  //  OR (override) we are getting low on health so heal!
+   ) {
     use_skill("use_hp", character);
     return true;
   }
