@@ -1,39 +1,38 @@
+let spsMerchantLoaded = 1;
+if (typeof spsMasterLoaded === 'undefined' || !spsMasterLoaded) load_code(1); //load the master code
+
 let lastUse_Courage = new Date(0);
 let lastUse_Luck = new Date(0);
 let lastUse_ThrowStuff = new Date(0);
-
 let movingToChar = false;
 let movingToBank = false;
-
 let justRespawned = false;
 let oldLocation = {};
-
-let routePlan = ['town','garbage'];
-let currentRoute = routePlan;
-
 let isPartyLeader = false;
-
 let potions = {
   coodev: { name: "codedev", inventory: { hpot0: { q: -1 }, hpot1: { q: -1 }, mpot0: { q: -1 }, mpot1: { q: -1 } } }
-//  D4ddy002: { name: "D4ddy002", inventory: { hpot0: { q: -1 }, hpot1: { q: -1 }, mpot0: { q: -1 }, mpot1: { q: -1 } } },
-//  D4ddy003: { name: "D4ddy003", inventory: { hpot0: { q: -1 }, hpot1: { q: -1 }, mpot0: { q: -1 }, mpot1: { q: -1 } } }
+  //  D4ddy002: { name: "D4ddy002", inventory: { hpot0: { q: -1 }, hpot1: { q: -1 }, mpot0: { q: -1 }, mpot1: { q: -1 } } },
+  //  D4ddy003: { name: "D4ddy003", inventory: { hpot0: { q: -1 }, hpot1: { q: -1 }, mpot0: { q: -1 }, mpot1: { q: -1 } } }
 };
 
-function init() {
+resetVars();
 
-}
+mycharacter.spsCurrActionFn.push('goToTown');
+
+console.log("merchant starting");
 
 setInterval(function doMerchantStuff() {
 
 
-  
   if (character.rip) {
+    console.log('character RIP');
     oldLocation = { x: character.real_x, y: character.real_y, map: character.map };
-    setTimeout(respawn,15000);
+    setTimeout(respawn, 15000);
     justRespawned = true;
     return 1;
   }
   if (justRespawned) {
+    console.log('respawn move to old location');
     smart_move(oldLocation);
     justRespawned = false;
     oldLocation = {};
@@ -41,51 +40,47 @@ setInterval(function doMerchantStuff() {
 
   if (is_moving(character)) return;
 
-  init();
-
-  partyHandler();
-
-  checkHealthAndManaPotionsInInventory();
-  restoreHealthOrMana();
-
-    console.log(currentRoute);
-    
-    if (currentRoute[0] == 'town') {
-      if (simple_distance({ x: 56, y: -122 }, { x: character.real_x, y: character.real_y }) > 500 && !is_moving(character)) {
-        game_log("too far away - go to town");
-        fastTravelTown();
-      }
-      currentRoute.shift();
-    }
-  
-  
-    // TODO:   CHECK IF GARBAGE TO SELL!
-  if (currentRoute[0] == 'garbage') {
-    if (character.real_x !== 56 || character.real_y !== -122 && !is_moving(character))
-    {
-      game_log("go to potions");
-      smart_move({ to: "potions", return: true }, function () { sellGarbage(); currentRoute.shift(); });
-    }
+  if (mycharacter.spsCurrActionFn[0]) {
+    console.log('ev:' + mycharacter.spsCurrActionFn[0] + " " + mycharacter.spsCurrStatus);
+    eval(mycharacter.spsCurrActionFn[0] + '()');
   }
-  
-  return;
+  else
+    console.log('no curr action fn');
 
-  if (needMoney() && !is_moving(character)) {
-    game_log("go to bank");
-    smart_move({ to: "bank", return: true }, function () { withdrawMoney(); });
-    return;
-  }
 
-  if (needPotions() && !is_moving(character)) {
-    game_log("go to potions 2");
-    smart_move({ to: "potions", return: true }, function () { buyPotions(); });
-    return;
-  }
+  /*
+partyHandler();
+checkHealthAndManaPotionsInInventory();
+restoreHealthOrMana();
 
-  if (!is_moving(character)) {
-    game_log("go to bank 2");
-    smart_move({ to: "bank", return: true }, function () { depositGold(); depositItems(); });
-  }
+ 
+// TODO:   CHECK IF GARBAGE TO SELL!
+
+game_log("go to potions");
+if (character.real_x !== 56 || character.real_y !== -122 && !is_moving(character))
+{
+  smart_move({ to: "potions", return: true }, function () { game_log("sell garbage"); sellGarbage(); currentRoute.shift(); });
+}
+ 
+ 
+
+if (needMoney() && !is_moving(character)) {
+game_log("go to bank");
+smart_move({ to: "bank", return: true }, function () { withdrawMoney(); });
+return;
+}
+
+if (needPotions() && !is_moving(character)) {
+game_log("go to potions 2");
+smart_move({ to: "potions", return: true }, function () { buyPotions(); });
+return;
+}
+
+if (!is_moving(character)) {
+game_log("go to bank 2");
+smart_move({ to: "bank", return: true }, function () { depositGold(); depositItems(); });
+}
+*/
 }, 1000 / 4); //loop every 5 seconds
 
 function needMoney() {
@@ -116,7 +111,7 @@ function buyPotions() {
 }
 
 function deliverPotions() {
-  Object.values(potions).forEach(function(member) {
+  Object.values(potions).forEach(function (member) {
     if (get_player(member.name)) {
       if (member.inventory.hpot0.q != -1 && member.inventory.hpot0.q - 200 < 0) send_item(member.name, getItemSlot("hpot0"), getDifference(member.inventory.hpot0.q, 200));
       if (member.inventory.hpot1.q != -1 && member.inventory.hpot1.q - 200 < 0) send_item(member.name, getItemSlot("hpot1"), getDifference(member.inventory.hpot1.q, 200));
@@ -151,10 +146,10 @@ function on_cm(name, data) {
 
 function sellGarbage() {
   for (var i = 5; i < 42; i++) {
-    if (character.items[i] 
+    if (character.items[i]
       && (character.items[i].name === "hpbelt" || character.items[i].name === "hpamulet" || character.items[i].name === "ringsj")) {
-        sell(i);
-      }
+      sell(i);
+    }
   }
 }
 
@@ -221,7 +216,7 @@ function depositItems() {
   for (item in character.items) {
     if (item == 0) continue;
     if (!character.items[item]) continue;
-    if(parent.G.items[character.items[item].name].type === ItemTypes.Potion) continue;
+    if (parent.G.items[character.items[item].name].type === ItemTypes.Potion) continue;
     bank_store(item);
   }
 }
@@ -237,18 +232,18 @@ function useCourage() {
 /**
  * Buff a target to increase their luck. 2% chance for you to receive a duplicate of their looted items!
  */
-function useLuck() {  
+function useLuck() {
   let partyMembers = getPartyMembers();
-  
+
   partyMembers = Object.values(partyMembers).filter(char =>
-		parent.distance(char, character) <= Merchantkills.Luck.range
+    parent.distance(char, character) <= Merchantkills.Luck.range
   );
-	partyMembers.forEach(function (member) {
+  partyMembers.forEach(function (member) {
     actionText(parent.G.skills[Merchantkills.Luck.name].name, colorGreen);
     use_skill(Merchantkills.Luck.name, member.name);
     game_log("Used " + parent.G.skills[Merchantkills.Luck.name].name + " on " + member.name, colorGreen);
     lastUse_Luck = new Date();
-  });    
+  });
 }
 
 /**
@@ -271,7 +266,7 @@ function canUseThrowStuff() {
   return (mssince(lastUse_ThrowStuff) > Merchantkills.ThrowStuff.cd && character.level >= Merchantkills.ThrowStuff.level);
 }
 
-add_bottom_button(99, "Sell Items", function() {
+add_bottom_button(99, "Sell Items", function () {
   let i = prompt("Ab Slot#", 5);
   for (i; i < 42; i++) {
     sell(i);

@@ -1,3 +1,9 @@
+let spsMasterLoaded = 1;
+var mycharacter = [];
+
+
+console.log("master starting");
+
 load_code(2);  //constants
 load_code(3);  //movement
 load_code(4);  //attack
@@ -10,7 +16,7 @@ loadFarmingOrMerchant();
 
 function loadFarmingOrMerchant() {
   if (character.ctype === CharacterTypes.Merchant) {
-    load_code(97); //merchant
+    if (typeof spsMerchantLoaded === 'undefined' || !spsMerchantLoaded) load_code(97); //merchant
   } else {
     load_code(98); //farming
     loadCharacterClass();

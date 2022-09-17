@@ -1,3 +1,14 @@
+function resetVars() {
+  let mycharacter.spsCurrActionFn = [];
+  let mycharacter.spsCurrStatus = [];
+  mycharacter.spsCurrStatus['fightGoo'] = '';
+  mycharacter.spsCurrStatus['goToTown'] = '';
+  mycharacter.spsCurrStatus['goToGoo'] = '';
+  mycharacter.spsCurrStatus['checkRecoverHPMP'] = '';
+  mycharacter.spsCurrStatus['errorState'] = '';
+} 
+
+
 function getDifference(a, b) {
   return Math.abs(a - b);
 }
@@ -28,6 +39,7 @@ function roundUpBy(a, b) {
 
 function partyHandler() {
   if (parent.isPartyLeader) {
+    console.log('I am party leader, creating party');
     createParty();
   } else {
     if (character.party && character.party !== "codedev") leaveParty();
