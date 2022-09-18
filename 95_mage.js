@@ -6,7 +6,7 @@ let lastUse_Energize = new Date(0);
 function init() {
 
   parent.attackActive = true;
-  parent.walkingActive = false;
+  parent.walkingActive = false;  // we do not want mage to walk toward target
   
 }
 

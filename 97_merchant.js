@@ -5,6 +5,7 @@ let lastUse_Courage = new Date(0);
 let lastUse_Luck = new Date(0);
 let lastUse_ThrowStuff = new Date(0);
 let movingToChar = false;
+let atParty = 0;  //  are we at the character party (to get their stuff and supply them)
 let movingToBank = false;
 let justRespawned = false;
 let oldLocation = {};
@@ -19,20 +20,20 @@ resetVars();
 
 mycharacter.spsCurrActionFn.push('goToTown');
 
-console.log("merchant starting");
+game_log("merchant starting");
 
 setInterval(function doMerchantStuff() {
 
 
   if (character.rip) {
-    console.log('character RIP');
+    set_message('Char RIP');
     oldLocation = { x: character.real_x, y: character.real_y, map: character.map };
-    setTimeout(respawn, 15000);
+    setTimeout(respawn(), 15000);
     justRespawned = true;
     return 1;
   }
   if (justRespawned) {
-    console.log('respawn move to old location');
+    game_log('RespawnMoveOldLoc');
     smart_move(oldLocation);
     justRespawned = false;
     oldLocation = {};
@@ -40,47 +41,53 @@ setInterval(function doMerchantStuff() {
 
   if (is_moving(character)) return;
 
+  partyHandler();
+  checkHealthAndManaPotionsInInventory();
+  restoreHealthOrMana();
+
+
   if (mycharacter.spsCurrActionFn[0]) {
     console.log('ev:' + mycharacter.spsCurrActionFn[0] + " " + mycharacter.spsCurrStatus);
     eval(mycharacter.spsCurrActionFn[0] + '()');
   }
   else
-    console.log('no curr action fn');
+  {
+    set_message("noActionFN");
+  }
 
+  
 
-  /*
-partyHandler();
-checkHealthAndManaPotionsInInventory();
-restoreHealthOrMana();
+  function goToPotionsSellGarabge() {
+    game_log("go to potions sell garbage");
+    if (character.real_x !== 56 || character.real_y !== -122 && !is_moving(character)) {
+      smart_move({ to: "potions", return: true }, function () { game_log("sell garbage"); sellGarbage(); mycharacter.spsCurrActionFn.shift(); mycharacter.spsCurrActionFn.push('withdrawMoney'); });
+    }
+  }
 
- 
-// TODO:   CHECK IF GARBAGE TO SELL!
+  function withDrawmoney() {
+    if (needMoney() && !is_moving(character)) {
+      game_log("go to bank (withdraw money)");
+      smart_move({ to: "bank", return: true }, function () { withdrawMoney(); mycharacter.spsCurrActionFn.shift();   mycharacter.spsCurrActionFn.push('buyPotions'); });
 
-game_log("go to potions");
-if (character.real_x !== 56 || character.real_y !== -122 && !is_moving(character))
-{
-  smart_move({ to: "potions", return: true }, function () { game_log("sell garbage"); sellGarbage(); currentRoute.shift(); });
-}
- 
- 
+      
+    }
+  }
 
-if (needMoney() && !is_moving(character)) {
-game_log("go to bank");
-smart_move({ to: "bank", return: true }, function () { withdrawMoney(); });
-return;
-}
+  function buyPotions() {
+    if (needPotions() && !is_moving(character)) {
+      game_log("go to potions 2");
+      smart_move({ to: "potions", return: true }, function () { buyPotions(); mycharacter.spsCurrActionFn.shift(); mycharacter.spsCurrActionFn.push('depositItems'); });
+      return;
+    }
+  }
 
-if (needPotions() && !is_moving(character)) {
-game_log("go to potions 2");
-smart_move({ to: "potions", return: true }, function () { buyPotions(); });
-return;
-}
+  function depositItems() {
+    if (!is_moving(character)) {
+      game_log("go to bank 2");
+      smart_move({ to: "bank", return: true }, function () { depositGold(); depositItems(); mycharacter.spsCurrActionFn.shift(); ignoreMoveCM=0; });
+    }
+  }
 
-if (!is_moving(character)) {
-game_log("go to bank 2");
-smart_move({ to: "bank", return: true }, function () { depositGold(); depositItems(); });
-}
-*/
 }, 1000 / 4); //loop every 5 seconds
 
 function needMoney() {
@@ -113,6 +120,7 @@ function buyPotions() {
 function deliverPotions() {
   Object.values(potions).forEach(function (member) {
     if (get_player(member.name)) {
+      game_log('deliver potions:'+member.name);
       if (member.inventory.hpot0.q != -1 && member.inventory.hpot0.q - 200 < 0) send_item(member.name, getItemSlot("hpot0"), getDifference(member.inventory.hpot0.q, 200));
       if (member.inventory.hpot1.q != -1 && member.inventory.hpot1.q - 200 < 0) send_item(member.name, getItemSlot("hpot1"), getDifference(member.inventory.hpot1.q, 200));
       if (member.inventory.mpot0.q != -1 && member.inventory.mpot0.q - 200 < 0) send_item(member.name, getItemSlot("mpot0"), getDifference(member.inventory.mpot0.q, 200));
@@ -133,13 +141,24 @@ function askForPotions() {
 }
 
 function on_cm(name, data) {
+  var ignoreMoveCM=0;
+  if (mycharacter.spsCurrActionFn[0])  ignoreMoveCM=1; // we dont want to move and will ignore the VM's that trigger movement (every 60 seconds if we are currently busy with functions)
+  game_log('CM:'+name+' '+JSON.stringify(data));
   if (name === Characters.Warrior || name === Characters.Mage || name === Characters.Ranger || name === Characters.Merchant) {
-    if (!is_moving(character) || !get_player(name) && "x" in data) {
-      smart_move({ x: data.x, y: data.y, map: data.map }, function () { askForPotions(); useLuck(); });
+    game_log('distance:' + parent.distance({ x: data.x - 1, y: data.y - 1, map: data.map }, character));
+    if (!is_moving(character) && !get_player(name) && "x" in data && ignoreMoveCM==0) {
+      game_log('MoveTo ' + name);
+      atParty=0;
+      smart_move({ x: data.x-5, y: data.y-5, map: data.map }, function () { askForPotions(); useLuck(); atParty=1;}); // moving to x,y (-1) so that we are not standing on the same square and taking damage
     }
-    if ("potions" in data) {
+    if ("potions" in data && !is_moving(character)) {
       potions[name] = data.potions;
       deliverPotions();
+      // at this point they gave us everything and we can return to town  (TODO: will need to adjust this for multiple characters)
+      if (atParty == 1) {
+        mycharacter.spsCurrActionFn.push('goToTown');
+        mycharacter.spsCurrActionFn.push('goToPotionsSellGarabge');  // if we are at the party time to go to town
+      }
     }
   }
 }

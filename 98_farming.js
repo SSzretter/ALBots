@@ -69,6 +69,7 @@ setInterval(function callMerchant() {
 }, 60000); //loop every 2 seconds
 
 function on_cm(name, data) {
+  game_log('CM:'+name+':'+JSON_stringify(data));
   if (name === Characters.Warrior || name === Characters.Mage || name === Characters.Ranger || name === Characters.Merchant) {
     if (name === Characters.Merchant && data === "askPotions") {
       sendGoldToMerchant();

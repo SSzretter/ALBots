@@ -1,6 +1,4 @@
 let spsMasterLoaded = 1;
-var mycharacter = [];
-
 
 console.log("master starting");
 

@@ -1,6 +1,9 @@
+var mycharacter = []; 
+
 function resetVars() {
-  let mycharacter.spsCurrActionFn = [];
-  let mycharacter.spsCurrStatus = [];
+  mycharacter = []; 
+  mycharacter.spsCurrActionFn = [];
+  mycharacter.spsCurrStatus = [];
   mycharacter.spsCurrStatus['fightGoo'] = '';
   mycharacter.spsCurrStatus['goToTown'] = '';
   mycharacter.spsCurrStatus['goToGoo'] = '';

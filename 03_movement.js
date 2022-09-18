@@ -4,8 +4,7 @@ function fastTravelTown() {
 }
 
 function travelTo(destination, destinationInTown) {
-
-  console.log("travel to");
+  game_log('trav:' + destination);
   if (destinationInTown) smart.use_town = true;
   smart_move({ to: destination });
 
@@ -58,6 +57,7 @@ function goToTown() {
 }
 
 function walkHalfwayToTarget(target) {
+  game_log('walk halfway to target');
   move(
     character.x + (target.x - character.x) / 2,
     character.y + (target.y - character.y) / 2
@@ -67,6 +67,7 @@ function walkHalfwayToTarget(target) {
 function walkToTargetWithinAttackRange(target) {
   //TODO: walk towards target to hit it (useful for ranged chars)
   //character.range
+  game_log('walk to target within range');
   move(
     character.x + (target.x - character.x) / 2,
     character.y + (target.y - character.y) / 2
