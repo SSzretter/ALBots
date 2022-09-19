@@ -59,7 +59,7 @@ setInterval(function doMerchantStuff() {
 
   function goToPotionsSellGarabge() {
     game_log("go to potions sell garbage");
-    if (character.real_x !== 56 || character.real_y !== -122 && !is_moving(character)) {
+    if (character.real_x !== 56 && character.real_y !== -122 && !is_moving(character)) {
       smart_move({ to: "potions", return: true }, function () { game_log("sell garbage"); sellGarbage(); mycharacter.spsCurrActionFn.shift(); mycharacter.spsCurrActionFn.push('withdrawMoney'); });
     }
   }
