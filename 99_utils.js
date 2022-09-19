@@ -42,10 +42,11 @@ function roundUpBy(a, b) {
 
 function partyHandler() {
   if (parent.isPartyLeader) {
-    console.log('I am party leader, creating party');
+    game_log('I am party leader, creating party');
     createParty();
   } else {
-    if (character.party && character.party !== "codedev") leaveParty();
+    if (character.party && character.party !== "codedev") {
+      leaveParty(); game_log('Invalid party, leaving party!'); }
   }
 }
 
@@ -59,11 +60,12 @@ function createParty() {
 }
 
 function on_party_invite(name) {
-  if (!character.party && "codedev" === name) accept_party_invite(name);
+  if (!character.party && "codedev" === name) { accept_party_invite(name); game_log('acceped party invite '+name);  }
 }
 
 function on_party_request(name) {
-  if (!character.party && "codedev" === name) accept_party_request(name);
+  if (!character.party && "codedev" === name) {
+    accept_party_request(name); game_log('acceped party request ' + name); }
 }
 
 function leaveParty() {

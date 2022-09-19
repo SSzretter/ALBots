@@ -20,6 +20,7 @@ resetVars();
 
 mycharacter.spsCurrActionFn.push('goToTown');
 
+
 game_log("merchant starting");
 
 setInterval(function doMerchantStuff() {
@@ -58,33 +59,61 @@ setInterval(function doMerchantStuff() {
   
 
   function goToPotionsSellGarabge() {
-    game_log("go to potions sell garbage");
-    if (character.real_x !== 56 && character.real_y !== -122 && !is_moving(character)) {
-      smart_move({ to: "potions", return: true }, function () { game_log("sell garbage"); sellGarbage(); mycharacter.spsCurrActionFn.shift(); mycharacter.spsCurrActionFn.push('withdrawMoney'); });
+    if (!is_moving(character))
+    {
+    
+      if (character.real_x !== 56 && character.real_y !== -122) {
+        game_log("go to potions");
+        smart_move({ to: "potions" });
+      }
+      else
+      {
+        game_log("sell garbage"); 
+        sellGarbage(); 
+        mycharacter.spsCurrActionFn.shift();
+      }
+
     }
+    
+   
   }
 
-  function withDrawmoney() {
+  function goWithdrawMoney() {
     if (needMoney() && !is_moving(character)) {
       game_log("go to bank (withdraw money)");
-      smart_move({ to: "bank", return: true }, function () { withdrawMoney(); mycharacter.spsCurrActionFn.shift();   mycharacter.spsCurrActionFn.push('buyPotions'); });
-
-      
+      set_message("BankWithdraw");
+      smart_move({ to: "bank" }, function () { withdrawMoney(); mycharacter.spsCurrActionFn.shift();  });
+    } else if (!needMoney())
+    {
+      set_message("DoNotNeedMoney");
+      mycharacter.spsCurrActionFn.shift();
     }
   }
 
-  function buyPotions() {
+  function doBuyPotions() {
     if (needPotions() && !is_moving(character)) {
-      game_log("go to potions 2");
-      smart_move({ to: "potions", return: true }, function () { buyPotions(); mycharacter.spsCurrActionFn.shift(); mycharacter.spsCurrActionFn.push('depositItems'); });
+      if (character.real_x !== 56 && character.real_y !== -122) {
+        game_log("go to potions 2");
+        smart_move({ to: "potions"});
+      }
+      else
+      {
+        game_log("buy potions");
+        buyPotions(); 
+        mycharacter.spsCurrActionFn.shift();
+      }
       return;
     }
+    else if (!needPotions())
+    {
+      mycharacter.spsCurrActionFn.shift();
+    }
   }
 
-  function depositItems() {
+  function doDepositItems() {
     if (!is_moving(character)) {
       game_log("go to bank 2");
-      smart_move({ to: "bank", return: true }, function () { depositGold(); depositItems(); mycharacter.spsCurrActionFn.shift(); ignoreMoveCM=0; });
+      smart_move({ to: "bank" }, function () { depositGold(); depositItems(); mycharacter.spsCurrActionFn.shift(); ignoreMoveCM=0; });
     }
   }
 
@@ -111,20 +140,32 @@ function buyPotions() {
   let quantitySmallMP = quantity("mpot0");
   let quantityBigMP = quantity("mpot1");
 
-  if (quantitySmallHP - 600 < 0) buy("hpot0", getDifference(quantitySmallHP, 600));
-  if (quantityBigHP - 600 < 0) buy("hpot1", getDifference(quantityBigHP, 600));
-  if (quantitySmallMP - 600 < 0) buy("mpot0", getDifference(quantitySmallMP, 600));
-  if (quantityBigMP - 600 < 0) buy("mpot1", getDifference(quantityBigMP, 600));
+  if (quantitySmallHP - 600 < 0) { 
+    game_log('buy hpot0');  
+    buy("hpot0", getDifference(quantitySmallHP, 600));
+  }
+  if (quantityBigHP - 600 < 0) {
+    game_log('buy hpot0'); 
+     buy("hpot1", getDifference(quantityBigHP, 600));
+  }
+    if (quantitySmallMP - 600 < 0) {
+      game_log('buy hpot0');  
+      buy("mpot0", getDifference(quantitySmallMP, 600));
+    }
+      if (quantityBigMP - 600 < 0) {
+        game_log('buy hpot0');  
+        buy("mpot1", getDifference(quantityBigMP, 600));
+      }
 }
 
 function deliverPotions() {
   Object.values(potions).forEach(function (member) {
     if (get_player(member.name)) {
-      game_log('deliver potions:'+member.name);
-      if (member.inventory.hpot0.q != -1 && member.inventory.hpot0.q - 200 < 0) send_item(member.name, getItemSlot("hpot0"), getDifference(member.inventory.hpot0.q, 200));
-      if (member.inventory.hpot1.q != -1 && member.inventory.hpot1.q - 200 < 0) send_item(member.name, getItemSlot("hpot1"), getDifference(member.inventory.hpot1.q, 200));
-      if (member.inventory.mpot0.q != -1 && member.inventory.mpot0.q - 200 < 0) send_item(member.name, getItemSlot("mpot0"), getDifference(member.inventory.mpot0.q, 200));
-      if (member.inventory.mpot1.q != -1 && member.inventory.mpot1.q - 200 < 0) send_item(member.name, getItemSlot("mpot1"), getDifference(member.inventory.mpot1.q, 200));
+      game_log('deliver potions (send_item):'+member.name);
+      if (member.inventory.hpot0.q != -1 && member.inventory.hpot0.q - 200 < 0 && getItemSlot("hpot0") != -1) send_item(member.name, getItemSlot("hpot0"), getDifference(member.inventory.hpot0.q, 200));
+      if (member.inventory.hpot1.q != -1 && member.inventory.hpot1.q - 200 < 0 && getItemSlot("hpot1") != -1) send_item(member.name, getItemSlot("hpot1"), getDifference(member.inventory.hpot1.q, 200));
+      if (member.inventory.mpot0.q != -1 && member.inventory.mpot0.q - 200 < 0 && getItemSlot("mpot0") != -1) send_item(member.name, getItemSlot("mpot0"), getDifference(member.inventory.mpot0.q, 200));
+      if (member.inventory.mpot1.q != -1 && member.inventory.mpot1.q - 200 < 0 && getItemSlot("mpot1") != -1) send_item(member.name, getItemSlot("mpot1"), getDifference(member.inventory.mpot1.q, 200));
     }
   });
 }
@@ -158,6 +199,9 @@ function on_cm(name, data) {
       if (atParty == 1) {
         mycharacter.spsCurrActionFn.push('goToTown');
         mycharacter.spsCurrActionFn.push('goToPotionsSellGarabge');  // if we are at the party time to go to town
+        mycharacter.spsCurrActionFn.push('goWithdrawMoney'); 
+        mycharacter.spsCurrActionFn.push('doBuyPotions');
+        mycharacter.spsCurrActionFn.push('doDepositItems');
       }
     }
   }
