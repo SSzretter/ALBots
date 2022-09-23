@@ -212,9 +212,9 @@ let isPartyLeader = true;  // TEMPORARILY TRUE NORMALLY WARRIOR IS PARTY LEADER
 
 let monsterType = ""; //should be set ingame
 
-let goldThreshold = 75000;  // 300000;
+let goldThreshold = 300000;
 let goldTransferAmount = 5000;
-let potionThreshold = 800;  //200;  // 50 each (4 potions * 50 = 200 before we call for the merchant)
+let potionThreshold = 200;  // 50 each (4 potions * 50 = 200 before we call for the merchant)
 
 let justRespawned = false;
 let oldLocation = {};
